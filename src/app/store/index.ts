@@ -2,43 +2,34 @@
 
 import { create } from "zustand"
 
-import { GamePage, Team } from "@/types"
+import { CurrentPanel, Message, Party } from "@/types"
+import { newParty } from "./newParty"
+import { newMessage } from "./newMessage"
 
 export const useStore = create<{
-  page: GamePage
+  panel: CurrentPanel
   isLoading: boolean
-  teams: Team[]
+  party: Party
+  pendingMessage: Message
   setLoading: (isLoading: boolean) => void
-  setPage: (page: GamePage) => void
+  setPanel: (panel: CurrentPanel) => void
+  setParty: (party: Party) => void
+  setPendingMessage: (pendingMessage: Message) => void
 }>((set, get) => ({
-  page: "starter",
+  panel: "join",
+  pendingMessage: newMessage({}),
   isLoading: false,
-  teams: [
-    {
-      id: 1,
-      name: "Chupacabras",
-      color: "emerald",
-      players: [
-        "Julian",
-        "Poli"
-      ],
-      score: 0,
-    },
-    {
-      id: 2,
-      name: "Samurais",
-      color: "sky",
-      players: [
-        "Joshua",
-        "Victor"
-      ],
-      score: 2
-    }
-  ],
+  party: newParty({}),
   setLoading: (isLoading: boolean) => {
     set({ isLoading })
   },
-  setPage: (page: GamePage) => {
-    set({ page })
+  setPanel: (panel: CurrentPanel) => {
+    set({ panel })
   },
+  setParty: (party: Party) => {
+    set({ party })
+  },
+  setPendingMessage: (pendingMessage: Message) => {
+    set({ pendingMessage })
+  }
 }))

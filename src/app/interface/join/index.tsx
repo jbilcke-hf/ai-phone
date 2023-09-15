@@ -10,9 +10,9 @@ import { useEffect, useState } from "react"
 import { useRandomName } from "@/lib/useRandomName"
 import { useStore } from "@/app/store"
 
-export function Starter() {
-  const page = useStore(state => state.page)
-  const setPage = useStore(state => state.setPage)
+export function Join() {
+  const panel = useStore(state => state.panel)
+  const setPanel = useStore(state => state.setPanel)
 
   const [partyId, setPartyId] = useState("")
   const [name, setName] = useState("")
@@ -29,7 +29,7 @@ export function Starter() {
 
   const [isOverName, setOverName] = useState(false)
   const nameBouncer = useSpring({
-    y: isOverName ? 12 : -12,
+    y: isOverName ? 12 : -4,
     loop: true,
     config: {
       tension: 100,
@@ -40,7 +40,7 @@ export function Starter() {
 
   const [isOverPartyId, setOverPartyId] = useState(false)
   const partyIdBouncer = useSpring({
-    y: isOverPartyId ? 12 : -12,
+    y: isOverPartyId ? 12 : -4,
     loop: true,
     config: {
       tension: 100,
@@ -69,7 +69,7 @@ export function Starter() {
       `fixed inset-0 w-screen h-screen`,
       `flex flex-col items-center justify-center`,
       `transition-all duration-300 ease-in-out`,
-      page === "starter" ? "opacity-1 translate-x-0" : "opacity-0 translate-x-[-1000px] pointer-events-none"
+      panel === "join" ? "opacity-1 translate-x-0" : "opacity-0 translate-x-[-1000px] pointer-events-none"
       )}>
       <div className={cn(
         `flex flex-col md:flex-row`,
@@ -110,7 +110,7 @@ export function Starter() {
                   )}>Choose a name</animated.h3>
                 <input
                   type="text"
-                  placeholder="Goofy"
+                  placeholder="Enter a name"
                   className={cn(
                     headingFont.className,
                     `input input-bordered bg-sky-100/80 w-full max-w-sm rounded-full`,
@@ -125,7 +125,6 @@ export function Starter() {
                 />
               </div> 
             </div>
-
             <div
               className={cn(
                 `flex flex-col w-1/2`,
@@ -185,16 +184,17 @@ export function Starter() {
                 `px-6 py-3`,
                 `bg-sky-500/80 hover:bg-sky-400/100 rounded-full`,
                 `text-center`,
-                `text-4xl font-mono text-sky-50`,
+                `text-4xl text-sky-50`,
                 `border border-sky-800/20`,
+                headingFont.className,
                 // `transition-all duration-300`,
                 // `hover:animate-bounce`
               )}
               onClick={() => {
-                setPage("chat")
+                setPanel("play")
               }}
               >
-              Let's play!
+              Let&apos;s play!
             </animated.button>
           </div>
         </div>

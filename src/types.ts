@@ -123,7 +123,36 @@ export type GetAppPostResponse = {
   post: Post
 }
 
-export type TeamColor =
+export const eyes = ["normal", "happy", "sleepy", "mischief"]
+export const mouths = ["smile",  "open", "surprise", "unhappy"]
+
+export type Avatar = {
+  eye: "normal" | "happy" | "sleepy" | "mischief"
+  mouth: "smile" | "open" | "surprise" | "unhappy"
+  colors: string[]
+}
+
+export const colors: GameColor[] = [
+  "stone",
+  "red",
+  "orange",
+  "amber",
+  "yellow",
+  "lime",
+  "green",
+  "emerald",
+  "teal",
+  "cyan",
+  "sky",
+  "blue",
+  "indigo",
+  "violet",
+  "purple",
+  "fuchsia",
+  "pink",
+  "rose"
+]
+export type GameColor =
   | "stone"
   | "red"
   | "orange"
@@ -143,14 +172,94 @@ export type TeamColor =
   | "pink"
   | "rose"
 
-export type Team = {
-  id: number
+  
+export const playerColorsAlt: Record<GameColor, string> = {
+  stone: "text-stone-700",
+  red: "text-red-700",
+  orange: "text-orange-700",
+  amber: "text-amber-700",
+  yellow: "text-yellow-700",
+  lime: "text-lime-700",
+  green: "text-green-700",
+  emerald: "text-emerald-700",
+  teal: "text-teal-700",
+  cyan: "text-cyan-700",
+  sky: "text-sky-700",
+  blue: "text-blue-700",
+  indigo: "text-indigo-700",
+  violet: "text-violet-700",
+  purple: "text-purple-700",
+  fuchsia: "text-fuchsia-700",
+  pink: "text-pink-700",
+  rose: "text-rose-700",
+}
+
+// players have a deeper color
+export const playerColors: Record<GameColor, string> = {
+  stone: "text-stone-800",
+  red: "text-red-800",
+  orange: "text-orange-800",
+  amber: "text-amber-800",
+  yellow: "text-yellow-800",
+  lime: "text-lime-800",
+  green: "text-green-800",
+  emerald: "text-emerald-800",
+  teal: "text-teal-800",
+  cyan: "text-cyan-800",
+  sky: "text-sky-800",
+  blue: "text-blue-800",
+  indigo: "text-indigo-800",
+  violet: "text-violet-800",
+  purple: "text-purple-800",
+  fuchsia: "text-fuchsia-800",
+  pink: "text-pink-800",
+  rose: "text-rose-800",
+}
+
+export type Player = {
+  id: string
   name: string
-  color: TeamColor
-  players: string[]
+  color: GameColor
+  avatar: Avatar
   score: number
 }
 
-export type GamePage =
-  | "starter"
-  | "chat"
+export type Team = {
+  id: number
+  name: string
+  color: GameColor
+  score: number
+  players: string[]
+}
+
+// a "message" is what is passed from one person to another
+export type Message = {
+  id: string
+  playerId: string
+  type: "invented" | "guessed"
+  input: string // invented -> image, guessed: -> prompt
+  output: string // invented -> prompt, guessed: -> image
+}
+
+export type PartyStatus =
+  | "waiting" // not started yet -> display the lobby panel
+  | "running" // game is running -> display the invent or guess panels
+  | "ended" // -> display the results panel
+
+export type Party = {
+  partyId: string
+  durationInMs: number // 5 * 60 * 1000
+  startedAt: string // ISO datetime
+  players: Player[]
+  status: PartyStatus
+  // we can add back the concept of team later
+  // but for now let's keep it simple and skip it
+  // teams: Team[]
+
+  messages: Message[]
+}
+
+export type CurrentPanel =
+  | "join"
+  | "play"
+  | "results"
