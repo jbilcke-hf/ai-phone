@@ -66,7 +66,6 @@ export function Join() {
   return (
     <div className={cn(
       `fixed inset-0 w-screen h-screen`,
-      `fixed inset-0 w-screen h-screen`,
       `flex flex-col items-center justify-center`,
       `transition-all duration-300 ease-in-out`,
       `px-3 md:px-0`,

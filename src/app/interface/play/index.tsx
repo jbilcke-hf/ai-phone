@@ -34,7 +34,6 @@ export function Play() {
   return (
     <div className={cn(
       `fixed inset-0 w-screen h-screen`,
-      `fixed inset-0 w-screen h-screen`,
       `flex flex-col items-center justify-center`,
       `transition-all duration-300 ease-in-out`,
       panel === "play" ? "opacity-1 translate-x-0" : "opacity-0 translate-x-[-1000px] pointer-events-none"
