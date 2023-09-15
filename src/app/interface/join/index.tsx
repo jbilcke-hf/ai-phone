@@ -69,6 +69,7 @@ export function Join() {
       `fixed inset-0 w-screen h-screen`,
       `flex flex-col items-center justify-center`,
       `transition-all duration-300 ease-in-out`,
+      `px-3 md:px-0`,
       panel === "join" ? "opacity-1 translate-x-0" : "opacity-0 translate-x-[-1000px] pointer-events-none"
       )}>
       <div className={cn(
@@ -88,12 +89,12 @@ export function Join() {
           `px-3 py-6 md:px-6 md:py-12 xl:px-8 xl:py-16`
         )}>
           <div className={cn(
-            `flex flex-row`,
-            `space-x-6`,
+            `flex flex-col md:flex-row`,
+            `space-y-12 md:space-y-0 md:space-x-6`,
           )}>
             <div
               className={cn(
-                `flex flex-col w-1/2`,
+                `flex flex-col md:w-1/2`,
                 `space-y-3 md:space-y-6`,
                 `items-center justify-around`,
               )}>
@@ -127,7 +128,7 @@ export function Join() {
             </div>
             <div
               className={cn(
-                `flex flex-col w-1/2`,
+                `flex flex-col md:w-1/2`,
                 `space-y-3 md:space-y-6`,
                 `items-center`,
               )}>

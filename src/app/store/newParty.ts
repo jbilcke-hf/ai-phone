@@ -1,6 +1,7 @@
 import { getRandomPartyId } from "@/lib/getRandomPartyId"
 import { Party } from "@/types"
 import { newPlayer } from "./newPlayer"
+import { newMessage } from "./newMessage"
 
 export function newParty(party: Partial<Party>): Party {
   return {
@@ -22,7 +23,11 @@ export function newParty(party: Partial<Party>): Party {
         name: "victor",
       })
     ],
-    messages: [],
+    messages: [
+      newMessage({ input: "hello" }),
+      newMessage({ input: "hi" }),
+      newMessage({ input: "what's up" }),
+    ],
     ...party,
   }
 }
