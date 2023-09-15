@@ -10,8 +10,8 @@ import { Chrono } from "../chrono"
 
 export function Play() {
   const pendingMessage = useStore(state => state.pendingMessage)
-
   const panel = useStore(state => state.panel)
+  const setPanel = useStore(state => state.setPanel)
   const [prompt, setPrompt] = useState("")
   const [isOverSubmitButton, setOverSubmitButton] = useState(false)
 
@@ -109,7 +109,7 @@ export function Play() {
                   // `hover:animate-bounce`
                 )}
                 onClick={() => {
-            
+                  setPanel("results")
                 }}
                 >
                 I&apos;m done!
