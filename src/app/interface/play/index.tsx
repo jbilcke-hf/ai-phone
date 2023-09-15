@@ -37,7 +37,7 @@ export function Play() {
       `fixed inset-0 w-screen h-screen`,
       `flex flex-col items-center justify-center`,
       `transition-all duration-300 ease-in-out`,
-      panel === "results" ? "opacity-1 translate-x-0" : "opacity-0 translate-x-[-1000px] pointer-events-none"
+      panel === "play" ? "opacity-1 translate-x-0" : "opacity-0 translate-x-[-1000px] pointer-events-none"
       )}>
       <Chrono />
       <div className={cn(
