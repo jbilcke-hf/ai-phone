@@ -1,10 +1,8 @@
 import { cn } from "@/lib/utils"
 import { Teams } from "@/app/interface/teams"
 import { ChatMessage } from "@/app/interface/chat-message"
-import { Chrono } from "../chrono"
-import { NewChallenge } from "../new-challenge"
+
 import { useStore } from "@/app/store"
-import { pick } from "@/lib/pick"
 
 export function Results() {
   const panel = useStore(state => state.panel)

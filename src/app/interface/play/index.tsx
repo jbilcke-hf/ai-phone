@@ -6,16 +6,31 @@ import { useSpring, useTransition, config, animated } from "@react-spring/web"
 import { cn } from "@/lib/utils"
 import { headingFont } from "@/app/interface/fonts"
 import { useStore } from "@/app/store"
-import { Chrono } from "../chrono"
+import { Countdown } from "../countdown"
+import { useCountdown } from "@/lib/useCountdown"
+import { useCharacterLimit } from "@/lib/useCharacterLimit"
 
 export function Play() {
   const pendingMessage = useStore(state => state.pendingMessage)
   const panel = useStore(state => state.panel)
   const setPanel = useStore(state => state.setPanel)
-  const [prompt, setPrompt] = useState("")
+  const [isLocked, setLocked] = useState(false)
+  const [promptDraft, setPromptDraft] = useState("")
   const [isOverSubmitButton, setOverSubmitButton] = useState(false)
+  const { progressPercent, remainingTimeInSec } = useCountdown({
+    timerId: "game-1", // everytime we change this, the timer will reset
+    durationInSec: 1000,
+    onEnd: () => {
+      console.log("End of turn!")
+      setLocked(true)
+    }
+  })
 
-  const maxChars = 40
+  const { shouldWarn, colorClass, nbCharsUsed, nbCharsLimits } = useCharacterLimit({
+    value: promptDraft,
+    nbCharsLimits: 38,
+    warnBelow: 15,
+  })
 
   const submitButtonBouncer = useSpring({
     transform: isOverSubmitButton
@@ -38,7 +53,10 @@ export function Play() {
       `transition-all duration-300 ease-in-out`,
       panel === "play" ? "opacity-1 translate-x-0" : "opacity-0 translate-x-[-1000px] pointer-events-none"
       )}>
-      <Chrono />
+      <Countdown
+        progressPercent={progressPercent}
+        remainingTimeInSec={remainingTimeInSec}
+      />
       <div className={cn(
         `flex flex-col md:flex-row`,
         `w-full md:max-w-3xl lg:max-w-4xl xl:max-w-5xl max-h-[80vh]`,
@@ -79,14 +97,32 @@ export function Play() {
                   className={cn(
                     headingFont.className,
                     `w-full`,
-                    `input input-bordered bg-sky-100/80 rounded-full`,
+                    `input input-bordered bg-sky-200 rounded-full`,
+                    `transition-all duration-300 ease-in-out`,
                     `text-sky-600 selection:bg-sky-200`,
-                    `text-center`,
+                    `text-left`,
                     `text-2xl leading-10 px-6 h-16 pt-1`
                   )}
-                  value={prompt}
-                  onChange={e => setPrompt(e.target.value)}
+                  value={promptDraft}
+                  onChange={e => setPromptDraft(e.target.value)}
+                  disabled={isLocked}
                 />
+                <div className={cn(
+                  `flex flew-row ml-[-64px] items-center`,
+                  `transition-all duration-300 ease-in-out`,
+                  `text-lg`,
+                  `bg-sky-200`,
+                  `rounded-full`,
+                  `text-right`,
+                  `p-1`,
+                  headingFont.className,
+                  colorClass,
+                  shouldWarn ? "opacity-100" : "opacity-0"
+                )}>
+                  <span>{nbCharsUsed}</span>
+                  <span>&#47;</span>
+                  <span>{nbCharsLimits}</span>
+                </div>
               </div>
               <div className="flex flex-row w-52">
               <animated.button
@@ -98,17 +134,24 @@ export function Play() {
                 onMouseLeave={() => setOverSubmitButton(false)}
                 className={cn(
                   `px-6 py-3`,
-                  `bg-sky-500/80 hover:bg-sky-400/100 rounded-full`,
+                  `rounded-full`,
+                  `transition-all duration-300 ease-in-out`,
+                  isLocked
+                    ? `bg-orange-500/20  border-orange-800/10`
+                    : `bg-sky-500/80 hover:bg-sky-400/100  border-sky-800/20`,
                   `text-center`,
                   `w-full`,
                   `text-2xl text-sky-50`,
-                  `border border-sky-800/20`,
+                  `border`,
                   headingFont.className,
                   // `transition-all duration-300`,
                   // `hover:animate-bounce`
                 )}
+                disabled={isLocked}
                 onClick={() => {
-                  setPanel("results")
+                  if (!isLocked) {
+                    setPanel("results")
+                  }
                 }}
                 >
                 I&apos;m done!
