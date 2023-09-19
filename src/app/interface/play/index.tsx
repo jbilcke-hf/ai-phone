@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useSpring, useTransition, config, animated } from "@react-spring/web"
+import { useState, useTransition } from "react"
+import { useSpring, config, animated } from "@react-spring/web"
 
 import { cn } from "@/lib/utils"
 import { headingFont } from "@/app/interface/fonts"
@@ -9,11 +9,14 @@ import { useStore } from "@/app/store"
 import { Countdown } from "../countdown"
 import { useCountdown } from "@/lib/useCountdown"
 import { useCharacterLimit } from "@/lib/useCharacterLimit"
+import { generateImage } from "@/app/server/actions/image"
 
 export function Play() {
+  const [_isPending, startTransition] = useTransition()
   const pendingMessage = useStore(state => state.pendingMessage)
   const panel = useStore(state => state.panel)
   const setPanel = useStore(state => state.setPanel)
+  const [imageUrl, setImageUrl] = useState("")
   const [isLocked, setLocked] = useState(false)
   const [promptDraft, setPromptDraft] = useState("")
   const [isOverSubmitButton, setOverSubmitButton] = useState(false)
@@ -45,6 +48,25 @@ export function Play() {
       friction: 10,
     },
   })
+
+  const handleSubmit = () => {
+    console.log("handleSubmit:", { isLocked, promptDraft })
+    if (isLocked) { return }
+    if (!promptDraft) { return }
+    setLocked(true)
+    startTransition(async () => {
+      try {
+        console.log("starting transition, calling generateImage")
+        const newImageUrl = await generateImage({ prompt: promptDraft })
+        setImageUrl(newImageUrl)
+        // setPanel("results")
+      } catch (err) {
+
+      } finally {
+        setLocked(false)
+      }
+    })
+  }
 
   return (
     <div className={cn(
@@ -80,6 +102,13 @@ export function Play() {
                 `space-y-3 md:space-y-6`,
                 `items-center`,
               )}>
+                {imageUrl ? <img
+                  src={imageUrl}
+                  className={cn(
+                    `w-[512px] object-cover`,
+                    `rounded-2xl`
+                    )}
+                /> : null}
             </div>
 
             <div className={cn(
@@ -97,9 +126,13 @@ export function Play() {
                   className={cn(
                     headingFont.className,
                     `w-full`,
-                    `input input-bordered bg-sky-200 rounded-full`,
+                    `input input-bordered rounded-full`,
                     `transition-all duration-300 ease-in-out`,
-                    `text-sky-600 selection:bg-sky-200`,
+         
+                    `disabled:bg-sky-100 disabled:text-sky-500 disabled:border-transparent`,
+                    isLocked
+                      ? `bg-sky-100 text-sky-500 border-transparent`
+                      : `bg-sky-200 text-sky-600 selection:bg-sky-200`,
                     `text-left`,
                     `text-2xl leading-10 px-6 h-16 pt-1`
                   )}
@@ -148,11 +181,7 @@ export function Play() {
                   // `hover:animate-bounce`
                 )}
                 disabled={isLocked}
-                onClick={() => {
-                  if (!isLocked) {
-                    setPanel("results")
-                  }
-                }}
+                onClick={handleSubmit}
                 >
                 I&apos;m done!
               </animated.button>

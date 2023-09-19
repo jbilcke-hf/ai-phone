@@ -1,3 +1,5 @@
+"use server"
+
 import { Party, Player } from "@/types"
 
 import { getParty } from "@/app/server/party/getParty"
