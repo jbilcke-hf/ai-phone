@@ -1,19 +1,25 @@
 "use client"
 
 import QRCode from "react-qr-code"
-import { useSpring, useTransition, config, animated } from "@react-spring/web"
+import { useSpring, config, animated } from "@react-spring/web"
 
 import { cn } from "@/lib/utils"
 import { headingFont } from "@/app/interface/fonts"
 import { useRandomPartyId } from "@/lib/useRandomPartyId"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useRandomName } from "@/lib/useRandomName"
 import { useStore } from "@/app/store"
+import { joinParty } from "@/app/server/actions/party"
 
 export function Join() {
   const panel = useStore(state => state.panel)
   const setPanel = useStore(state => state.setPanel)
+  const setParty = useStore(state => state.setParty)
+  const setPlayer = useStore(state => state.setPlayer)
 
+  const [_isPending, startTransition] = useTransition()
+
+  const [isLoading, setLoading] = useState(false)
   const [partyId, setPartyId] = useState("")
   const [name, setName] = useState("")
 
@@ -62,6 +68,26 @@ export function Join() {
       friction: 10,
     },
   })
+
+  const canPlay = name && partyId && !isLoading
+
+  const handlePlay = () => {
+    if (isLoading) { return }
+    setLoading(true)
+    startTransition(async () => {
+      try {
+        const newData = await joinParty(partyId, { name })
+        console.log("newData:", newData)
+        setParty(newData.party)
+        setPlayer(newData.player)
+        setPanel("play")
+      } catch (err) {
+        console.log(`failed to join a party: ${err}`)
+      } finally {
+        setLoading(false)
+      }
+    })
+  }
 
   return (
     <div className={cn(
@@ -178,21 +204,31 @@ export function Join() {
                 textShadow: "0px 0px 1px #000000ab",
                 ...startButtonBouncer
               }}
-              onMouseEnter={() => setOverStartButton(true)}
+              onMouseEnter={() => {
+                if (canPlay) {
+                  setOverStartButton(true)
+                }
+              }}
               onMouseLeave={() => setOverStartButton(false)}
               className={cn(
                 `px-6 py-3`,
-                `bg-sky-500/80 hover:bg-sky-400/100 rounded-full`,
+                `rounded-full`,
                 `text-center`,
-                `text-4xl text-sky-50`,
+                `text-4xl`,
+                canPlay
+                  ? `bg-sky-500/80 hover:bg-sky-400/100 text-sky-50`
+                  :  `bg-sky-500/50 hover:bg-sky-400/50 text-sky-50/80`,
                 `border border-sky-800/20`,
                 headingFont.className,
                 // `transition-all duration-300`,
                 // `hover:animate-bounce`
               )}
               onClick={() => {
-                setPanel("play")
+                if (canPlay) {
+                  handlePlay()
+                }
               }}
+              disabled={!canPlay}
               >
               Let&apos;s play!
             </animated.button>

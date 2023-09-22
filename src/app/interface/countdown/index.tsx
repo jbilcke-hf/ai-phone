@@ -10,6 +10,7 @@ export function Countdown({
   return (
     <div
       className={cn(
+        `z-20`,
         `fixed top-8 right-8`,
         `radial-progress text-primary-content border-4`,
         `transition-all duration-1000`,

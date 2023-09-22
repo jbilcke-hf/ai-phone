@@ -1,13 +1,15 @@
 "use server"
+import { v4 as uuidv4 } from "uuid"
 
 import { Party, Player } from "@/types"
 
-import { getParty } from "@/app/server/party/getParty"
-import { saveParty } from "@/app/server/party/saveParty"
-import { deleteParty } from "../party/deleteParty"
+import { readParty } from "@/app/server/party/readParty"
+import { writeParty } from "@/app/server/party/writeParty"
+import { deleteParty } from "@/app/server/party/deleteParty"
+import { newPlayer } from "@/app/store/newPlayer"
 
 // 
-export async function joinParty(partyId: string, player: Player) {
+export async function joinParty(partyId: string, partialPlayer: Partial<Player>): Promise<{ party: Party, player: Player }> {
   let party: Party = {
     partyId,
     durationInMs: 5 * 60 * 1000,
@@ -22,22 +24,25 @@ export async function joinParty(partyId: string, player: Player) {
     console.log("couldn't find an existing party, creating it..")
   }
 
-  const alreadyPlaying = party.players.some(p => p.id !== player.id)
+  const player = newPlayer(partialPlayer)
+  const alreadyPlaying = party.players.some(p => p.id === player.id)
 
   if (alreadyPlaying) {
-    return party
+    return { party, player }
   }
 
-  await saveParty({
+  const written = await writeParty({
     ...party,
     players: party.players.concat(player)
   })
+
+  return { party: written, player }
 }
 
 export async function startParty(partyId: string) {
   let party: Party
   try {
-    party = await getParty(partyId)
+    party = await readParty(partyId)
   } catch (err) {
     console.error(`couldn't start party ${partyId} (not found)`)
     throw new Error(`couldn't start party ${partyId} (not found)`)
@@ -71,7 +76,7 @@ export async function startParty(partyId: string) {
 export async function stopParty(partyId: string) {
   let party: Party
   try {
-    party = await getParty(partyId)
+    party = await readParty(partyId)
   } catch (err) {
     console.error(`couldn't stop party ${partyId} (not found)`)
     throw new Error(`couldn't stop party ${partyId} (not found)`)
@@ -87,3 +92,16 @@ export async function stopParty(partyId: string) {
   }
 }
 
+
+export async function getParty(partyId: string) {
+  let party: Party
+  try {
+    party = await readParty(partyId)
+
+    return party
+  } catch (err) {
+    console.error(`couldn't stop party ${partyId} (not found)`)
+    throw new Error(`couldn't stop party ${partyId} (not found)`)
+  }
+
+}

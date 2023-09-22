@@ -1,3 +1,5 @@
+"use server"
+
 import path from "node:path"
 
 import { Party } from "@/types"
@@ -6,7 +8,7 @@ import { readPartyFile } from "@/app/server/party/readPartyFile"
 import { locker } from "@/app/server/utils/locker"
 import { createDirIfNeeded } from "@/app/server/utils/createDirIfNeeded"
 
-export const getParty = async (partyId: string): Promise<Party> => {
+export const readParty = async (partyId: string): Promise<Party> => {
 
   createDirIfNeeded(partiesDirFilePath)
   

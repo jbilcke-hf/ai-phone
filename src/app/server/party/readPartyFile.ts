@@ -1,3 +1,5 @@
+"use server"
+
 import { promises as fs } from "node:fs"
 
 import { Party } from "@/types"

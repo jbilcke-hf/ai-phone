@@ -1,3 +1,5 @@
+"use server"
+
 import { promises as fs } from "node:fs"
 import path from "node:path"
 
@@ -7,7 +9,7 @@ import { partiesDirFilePath } from "@/app/server/config"
 import { locker } from "@/app/server/utils/locker"
 import { createDirIfNeeded } from "@/app/server/utils/createDirIfNeeded"
 
-export const saveParty = async (party: Party): Promise<Party> => {
+export const writeParty = async (party: Party): Promise<Party> => {
   createDirIfNeeded(partiesDirFilePath)
   
   const fileName = `${party.partyId}.json`

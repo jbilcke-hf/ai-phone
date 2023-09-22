@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { useSpring, config, animated } from "@react-spring/web"
 
 import { cn } from "@/lib/utils"
@@ -10,12 +10,16 @@ import { Countdown } from "../countdown"
 import { useCountdown } from "@/lib/useCountdown"
 import { useCharacterLimit } from "@/lib/useCharacterLimit"
 import { generateImage } from "@/app/server/actions/image"
+import { getParty } from "@/app/server/actions/party"
 
 export function Play() {
   const [_isPending, startTransition] = useTransition()
+  const intervalRef = useRef<NodeJS.Timeout>()
   const pendingMessage = useStore(state => state.pendingMessage)
   const panel = useStore(state => state.panel)
   const setPanel = useStore(state => state.setPanel)
+  const party = useStore(state => state.party)
+  const setParty = useStore(state => state.setParty)
   const [imageUrl, setImageUrl] = useState("")
   const [isLocked, setLocked] = useState(false)
   const [promptDraft, setPromptDraft] = useState("")
@@ -59,6 +63,8 @@ export function Play() {
         console.log("starting transition, calling generateImage")
         const newImageUrl = await generateImage({ prompt: promptDraft })
         setImageUrl(newImageUrl)
+
+        // then we need to send this message to the backend
         // setPanel("results")
       } catch (err) {
 
@@ -67,6 +73,32 @@ export function Play() {
       }
     })
   }
+
+  const mainLoop = () => {
+    const state = useStore.getState()
+    if (state.panel !== "play") { return }
+    console.log(`current panel is: ${state.panel}`)
+    console.log("TODO: call the API for new messages")
+    // interrogate the server to see if we have any new message to solve
+
+    startTransition(async () => {
+      console.log("partyId: "+party.partyId)
+      const updatedParty = await getParty(party.partyId)
+      console.log("updated:", updatedParty)
+      // setParty(updatedParty)
+    })
+  }
+  
+  useEffect(() => {
+    console.log("starting loop")
+    clearInterval(intervalRef.current)
+    intervalRef.current = setInterval(mainLoop, 2000)
+
+    return () => {
+      console.log("ending loop")
+      clearInterval(intervalRef.current)
+    }
+  }, [])
 
   return (
     <div className={cn(
@@ -138,6 +170,13 @@ export function Play() {
                   )}
                   value={promptDraft}
                   onChange={e => setPromptDraft(e.target.value)}
+                  onKeyDown={({ key }) => {
+                    if (key === 'Enter') {
+                     if (!isLocked) {
+                        handleSubmit()
+                     }
+                    }
+                  }}
                   disabled={isLocked}
                 />
                 <div className={cn(
@@ -150,7 +189,7 @@ export function Play() {
                   `p-1`,
                   headingFont.className,
                   colorClass,
-                  shouldWarn ? "opacity-100" : "opacity-0"
+                  shouldWarn && !isLocked ? "opacity-100" : "opacity-0"
                 )}>
                   <span>{nbCharsUsed}</span>
                   <span>&#47;</span>

@@ -1,38 +1,40 @@
 "use server"
 
-import { HfInference } from '@huggingface/inference'
+const token = `${process.env.HF_API_TOKEN || ""}`
+const url = `${process.env.HF_INFERENCE_ENDPOINT || ""}`
 
-const hf = new HfInference(`${process.env.HF_API_TOKEN || ""}`)
-const hfi = hf.endpoint(`${process.env.HF_INFERENCE_ENDPOINT || ""}`)
-
-export async function generateImage({ prompt }: { prompt: string }) {
+export async function generateImage({ prompt }: { prompt: string }): Promise<string> {
   if (!prompt) {
     throw new Error(`prompt is too short!`)
   }
 
   try {
-    console.log("calling hf.textToImage")
-    const blob = await hfi.textToImage({
-      inputs: [
-        `beautiful photo of`,
-       prompt,
-        'award winning',
-        'high resolution',
-        'photo realistic',
-        'intricate details',
-      ].join(', '),
-
-      // SDXL is also available, see:
-      // https://ui.endpoints.huggingface.co/catalog
-      // model: 'stabilityai/stable-diffusion-2-1',
-      parameters: {
-        negative_prompt: 'blurry, artificial, cropped, low quality, ugly',
-      }
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        // Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        inputs: prompt
+      }),
+      cache: "no-store",
+      // we can also use this (see https://vercel.com/blog/vercel-cache-api-nextjs-cache)
+      // next: { revalidate: 1 }
     })
-    const buffer = Buffer.from(await blob.arrayBuffer())
-    return `data:image/png;base64,${buffer.toString("base64")}`
+
+
+    // Recommendation: handle errors
+    if (res.status !== 200) {
+      // This will activate the closest `error.js` Error Boundary
+      throw new Error('Failed to fetch data')
+    }
+
+    // the result is a JSON-encoded string
+    const response = await res.json() as string
+    return `data:image/png;base64,${response}`
   } catch (err) {
-    console.error(`Error when generating the image: ${err}`);
-    throw new Error(`failed to generate image: ${err}`)
+    throw new Error(`failed to generate the image ${err}`)
   }
 }
