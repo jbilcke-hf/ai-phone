@@ -61,7 +61,7 @@ export async function startParty(partyId: string) {
   }
 
   try {
-    await saveParty({
+    await writeParty({
       ...party,
       startedAt: new Date().toISOString(),
       status: "running"
