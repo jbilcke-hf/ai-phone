@@ -15,7 +15,7 @@ export const useStore = create<{
   pendingMessage: Message
   setLoading: (isLoading: boolean) => void
   setPanel: (panel: CurrentPanel) => void
-  setParty: (party: Party) => void
+  setParty: (party: Partial<Party>) => void
   setPlayer: (player: Player) => void
   setPendingMessage: (pendingMessage: Message) => void
   syncWithServer: () => void
@@ -31,8 +31,13 @@ export const useStore = create<{
   setPanel: (panel: CurrentPanel) => {
     set({ panel })
   },
-  setParty: (party: Party) => {
-    set({ party })
+  setParty: (party: Partial<Party>) => {
+    set({
+      party: {
+        ...get().party,
+        ...party,
+      }
+    })
   },
   setPlayer: (player: Player) => {
     set({ player })

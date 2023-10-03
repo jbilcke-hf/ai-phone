@@ -82,9 +82,9 @@ export function Play() {
     // interrogate the server to see if we have any new message to solve
 
     startTransition(async () => {
-      console.log("partyId: "+party.partyId)
+      console.log("interface/play -> start transition: partyId: "+party.partyId)
       const updatedParty = await getParty(party.partyId)
-      console.log("updated:", updatedParty)
+      console.log("interface/play -> start transition: updated:", updatedParty)
       // setParty(updatedParty)
     })
   }

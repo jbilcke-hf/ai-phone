@@ -1,13 +1,13 @@
 "use server"
 
 import { promises as fs } from "node:fs"
+import lockfile from "proper-lockfile"
 
 import { Party } from "@/types"
-import { locker } from "@/app/server/utils/locker"
 
 export const readPartyFile = async (partyFilePath: string): Promise<Party> => {
-  return locker<Party>(partyFilePath, async () => {
-    const fileData = await fs.readFile(partyFilePath, 'utf8')
-    return JSON.parse(fileData) as Party
-  })
+  const release = await lockfile.lock(partyFilePath)
+  const fileData = await fs.readFile(partyFilePath, 'utf8')
+  await release()
+  return JSON.parse(fileData) as Party
 }

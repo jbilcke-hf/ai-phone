@@ -1,5 +1,9 @@
+"use client"
+
+import { useEffect, useState } from "react"
+
 import { cn } from "@/lib/utils"
-import { Team, GameColor, playerColors } from "@/types"
+import { playerColors } from "@/types"
 import { useStore } from "@/app/store"
 
 import { headingFont } from "../fonts"
@@ -7,6 +11,10 @@ import { headingFont } from "../fonts"
 export function Teams() {
   const players = useStore(state => state.party.players)
 
+  const [isLoaded, setLoaded] = useState(false)
+  useEffect(() => { setLoaded(true) }, [])
+  if (!isLoaded) { return null }
+  
   return (
   <div className={cn(
     `flex flex-col`,

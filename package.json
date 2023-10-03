@@ -46,7 +46,6 @@
     "eslint": "8.45.0",
     "eslint-config-next": "13.4.10",
     "html2canvas": "^1.4.1",
-    "lockfile-light": "^1.0.4",
     "lucide-react": "^0.260.0",
     "moodie": "^1.1.1",
     "nanoid": "^5.0.1",
@@ -54,6 +53,7 @@
     "photo-sphere-viewer-lensflare-plugin": "^1.1.1",
     "pick": "^0.0.1",
     "postcss": "8.4.26",
+    "proper-lockfile": "^4.1.2",
     "react": "18.2.0",
     "react-circular-progressbar": "^2.1.0",
     "react-dom": "18.2.0",
@@ -78,6 +78,7 @@
     "zustand": "^4.4.1"
   },
   "devDependencies": {
+    "@types/proper-lockfile": "^4.1.2",
     "@types/qs": "^6.9.7",
     "@types/react-virtualized": "^9.21.22",
     "@types/sbd": "^1.0.3",
