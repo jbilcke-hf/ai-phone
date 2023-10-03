@@ -11,10 +11,6 @@ import { headingFont } from "../fonts"
 export function Teams() {
   const players = useStore(state => state.party.players)
 
-  const [isLoaded, setLoaded] = useState(false)
-  useEffect(() => { setLoaded(true) }, [])
-  if (!isLoaded) { return null }
-  
   return (
   <div className={cn(
     `flex flex-col`,

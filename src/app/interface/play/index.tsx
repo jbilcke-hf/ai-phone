@@ -11,6 +11,7 @@ import { useCountdown } from "@/lib/useCountdown"
 import { useCharacterLimit } from "@/lib/useCharacterLimit"
 import { generateImage } from "@/app/server/actions/image"
 import { getParty } from "@/app/server/actions/party"
+import { Party } from "@/types"
 
 export function Play() {
   const [_isPending, startTransition] = useTransition()
@@ -26,16 +27,19 @@ export function Play() {
   const [isOverSubmitButton, setOverSubmitButton] = useState(false)
   const { progressPercent, remainingTimeInSec } = useCountdown({
     timerId: "game-1", // everytime we change this, the timer will reset
-    durationInSec: 1000,
+    durationInSec: 45,
     onEnd: () => {
       console.log("End of turn!")
       setLocked(true)
     }
   })
 
+  const partyRef = useRef<Party>(party)
+  useEffect(() => { partyRef.current = party }, [JSON.stringify(party)])
+
   const { shouldWarn, colorClass, nbCharsUsed, nbCharsLimits } = useCharacterLimit({
     value: promptDraft,
-    nbCharsLimits: 38,
+    nbCharsLimits: 50,
     warnBelow: 15,
   })
 
@@ -77,20 +81,20 @@ export function Play() {
   const mainLoop = () => {
     const state = useStore.getState()
     if (state.panel !== "play") { return }
-    console.log(`current panel is: ${state.panel}`)
-    console.log("TODO: call the API for new messages")
+    // console.log(`current panel is: ${state.panel}`)
+    // console.log("TODO: call the API for new messages")
     // interrogate the server to see if we have any new message to solve
 
     startTransition(async () => {
-      console.log("interface/play -> start transition: partyId: "+party.partyId)
-      const updatedParty = await getParty(party.partyId)
-      console.log("interface/play -> start transition: updated:", updatedParty)
-      // setParty(updatedParty)
+      // console.log("interface/play -> start transition: partyId: "+partyRef.current.partyId)
+      const updatedParty = await getParty(partyRef.current.partyId)
+      // console.log("interface/play -> start transition: updated:", updatedParty)
+      setParty(updatedParty)
     })
   }
   
   useEffect(() => {
-    console.log("starting loop")
+    // console.log("starting loop")
     clearInterval(intervalRef.current)
     intervalRef.current = setInterval(mainLoop, 2000)
 
@@ -99,6 +103,7 @@ export function Play() {
       clearInterval(intervalRef.current)
     }
   }, [])
+
 
   return (
     <div className={cn(
@@ -146,7 +151,7 @@ export function Play() {
             <div className={cn(
               `flex flex-col md:flex-row`,
               `space-y-3 md:space-y-0 md:space-x-3`,
-              ` w-full max-w-[800px]`,
+              ` w-full max-w-[1024px]`,
               `items-center justify-between`
             )}>
               <div className={cn(
@@ -222,7 +227,7 @@ export function Play() {
                 disabled={isLocked}
                 onClick={handleSubmit}
                 >
-                I&apos;m done!
+                {isLocked ? "Generating.." : "Generate"}
               </animated.button>
               </div>
             </div>

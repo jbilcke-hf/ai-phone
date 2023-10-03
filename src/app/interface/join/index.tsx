@@ -11,6 +11,7 @@ import { useStore } from "@/app/store"
 import { joinParty } from "@/app/server/actions/party"
 
 export function Join() {
+
   const panel = useStore(state => state.panel)
   const setPanel = useStore(state => state.setPanel)
   const setParty = useStore(state => state.setParty)
@@ -72,6 +73,13 @@ export function Join() {
       try {
         const newData = await joinParty(party.partyId, { name })
         console.log("newData:", newData)
+
+        window.history.pushState(
+          {},
+          `AI Telephone Game 🤗 (party: ${party.partyId})`,
+          `/party/${party.partyId}`
+        )
+
         setParty(newData.party)
         setPlayer(newData.player)
         setPanel("play")

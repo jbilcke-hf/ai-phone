@@ -7,6 +7,7 @@ import { newParty } from "./newParty"
 import { newMessage } from "./newMessage"
 import { newPlayer } from "./newPlayer"
 
+// note: this should not be used in server-side template or we will have some trouble
 export const useStore = create<{
   panel: CurrentPanel
   isLoading: boolean
@@ -21,10 +22,10 @@ export const useStore = create<{
   syncWithServer: () => void
 }>((set, get) => ({
   panel: "join",
-  pendingMessage: newMessage({}),
+  pendingMessage: newMessage(),
   isLoading: false,
-  party: newParty({}),
-  player: newPlayer({}),
+  party: newParty(),
+  player: newPlayer(),
   setLoading: (isLoading: boolean) => {
     set({ isLoading })
   },

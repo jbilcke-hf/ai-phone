@@ -2,13 +2,15 @@
 
 import Head from "next/head"
 
-import { Main } from "./main"
+import { Main } from "@/app/main"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
 
 // https://nextjs.org/docs/pages/building-your-application/optimizing/fonts 
 
-export default function Page() {
+export default function PartyPage({ params }: { params: { partyId: string } }) {
+  const partyId = `${params?.partyId}`
+
   const [isLoaded, setLoaded] = useState(false)
   useEffect(() => { setLoaded(true) }, [])
   return (
@@ -22,7 +24,7 @@ export default function Page() {
         `light text-cyan-900`,
         `bg-gradient-to-r from-cyan-500 to-blue-400`,
         )}>
-        {isLoaded && <Main />}
+        {isLoaded && <Main partyId={partyId} />}
       </main>
     </>
   )

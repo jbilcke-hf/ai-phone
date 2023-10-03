@@ -21,7 +21,7 @@ export async function joinParty(partyId: string, partialPlayer: Partial<Player>)
   try {
     party = await getParty(partyId)
   } catch (err) {
-    console.log("couldn't find an existing party, creating it..")
+    console.log(`couldn't find an existing party ${partyId}, creating it..`)
   }
 
   const player = newPlayer(partialPlayer)
@@ -30,14 +30,17 @@ export async function joinParty(partyId: string, partialPlayer: Partial<Player>)
   console.log("newParty id: " + party.partyId)
   
   if (alreadyPlaying) {
+    console.log(`player ${player.id} is already playing`)
     return { party, player }
   }
 
+  console.log("writting a new party:", JSON.stringify(party, null, 2))
   const written = await writeParty({
     ...party,
     players: party.players.concat(player)
   })
 
+  console.log("written a new party:", JSON.stringify(written, null, 2))
   return { party: written, player }
 }
 

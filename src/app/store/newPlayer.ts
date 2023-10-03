@@ -2,7 +2,7 @@ import { pick } from "@/lib/pick"
 import { Avatar, GameColor, Player, colors, eyes, mouths } from "@/types"
 
 let nbPlayers = 0
-export function newPlayer(player: Partial<Player>): Player {
+export function newPlayer(player: Partial<Player> = {}): Player {
   return {
     id: `${nbPlayers++}`,
     name: typeof player?.name === "string" && player.name.length ? player.name : "Anon",

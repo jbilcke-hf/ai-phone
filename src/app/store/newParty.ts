@@ -3,8 +3,9 @@ import { Party } from "@/types"
 import { newPlayer } from "./newPlayer"
 import { newMessage } from "./newMessage"
 
-export function newParty(party: Partial<Party>): Party {
-  console.log("newParty called!", party)
+export function newParty(party: Partial<Party> = {}): Party {
+  const randomPartyId = getRandomPartyId()
+  console.log(`newParty called! randomPartyId = ${randomPartyId}`)
   return {
     partyId: getRandomPartyId(),
     durationInMs: 5 * 60 * 1000,
