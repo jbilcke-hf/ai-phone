@@ -4,6 +4,7 @@ import { newPlayer } from "./newPlayer"
 import { newMessage } from "./newMessage"
 
 export function newParty(party: Partial<Party>): Party {
+  console.log("newParty called!", party)
   return {
     partyId: getRandomPartyId(),
     durationInMs: 5 * 60 * 1000,

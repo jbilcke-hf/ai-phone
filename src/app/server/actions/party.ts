@@ -27,6 +27,8 @@ export async function joinParty(partyId: string, partialPlayer: Partial<Player>)
   const player = newPlayer(partialPlayer)
   const alreadyPlaying = party.players.some(p => p.id === player.id)
 
+  console.log("newParty id: " + party.partyId)
+  
   if (alreadyPlaying) {
     return { party, player }
   }
@@ -100,8 +102,8 @@ export async function getParty(partyId: string) {
 
     return party
   } catch (err) {
-    console.error(`couldn't stop party ${partyId} (not found)`)
-    throw new Error(`couldn't stop party ${partyId} (not found)`)
+    console.error(`couldn't get party ${partyId} (not found)`)
+    throw new Error(`couldn't get party ${partyId} (not found)`)
   }
 
 }
