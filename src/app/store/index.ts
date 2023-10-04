@@ -2,9 +2,8 @@
 
 import { create } from "zustand"
 
-import { CurrentPanel, Message, Party, Player } from "@/types"
+import { CurrentPanel, Party, Player } from "@/types"
 import { newParty } from "./newParty"
-import { newMessage } from "./newMessage"
 import { newPlayer } from "./newPlayer"
 
 // note: this should not be used in server-side template or we will have some trouble
@@ -13,16 +12,12 @@ export const useStore = create<{
   isLoading: boolean
   party: Party
   player: Player
-  pendingMessage: Message
   setLoading: (isLoading: boolean) => void
   setPanel: (panel: CurrentPanel) => void
   setParty: (party: Partial<Party>) => void
   setPlayer: (player: Player) => void
-  setPendingMessage: (pendingMessage: Message) => void
-  syncWithServer: () => void
 }>((set, get) => ({
   panel: "join",
-  pendingMessage: newMessage(),
   isLoading: false,
   party: newParty(),
   player: newPlayer(),
@@ -42,11 +37,6 @@ export const useStore = create<{
   },
   setPlayer: (player: Player) => {
     set({ player })
-  },
-  setPendingMessage: (pendingMessage: Message) => {
-    set({ pendingMessage })
-  },
-  syncWithServer: () => {
   }
 }))
 

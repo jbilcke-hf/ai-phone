@@ -10,18 +10,21 @@ import { Countdown } from "../countdown"
 import { useCountdown } from "@/lib/useCountdown"
 import { useCharacterLimit } from "@/lib/useCharacterLimit"
 import { generateImage } from "@/app/server/actions/image"
-import { getParty } from "@/app/server/actions/party"
-import { Party } from "@/types"
+import { getParty, solveChallenge } from "@/app/server/actions/party"
+import {  Party } from "@/types"
 
 export function Play() {
   const [_isPending, startTransition] = useTransition()
   const intervalRef = useRef<NodeJS.Timeout>()
-  const pendingMessage = useStore(state => state.pendingMessage)
+
   const panel = useStore(state => state.panel)
   const setPanel = useStore(state => state.setPanel)
   const party = useStore(state => state.party)
   const setParty = useStore(state => state.setParty)
-  const [imageUrl, setImageUrl] = useState("")
+  const player = useStore(state => state.player)
+        
+  const nextChallenge = party.challenges.filter(c => !c.solved).find(challenge => challenge.toPlayer === player.id)
+
   const [isLocked, setLocked] = useState(false)
   const [promptDraft, setPromptDraft] = useState("")
   const [isOverSubmitButton, setOverSubmitButton] = useState(false)
@@ -65,31 +68,48 @@ export function Play() {
     startTransition(async () => {
       try {
         console.log("starting transition, calling generateImage")
-        const newImageUrl = await generateImage({ prompt: promptDraft })
-        setImageUrl(newImageUrl)
 
-        // then we need to send this message to the backend
+        // note: the user won't see their on image - it's on purpose!
+        const newAssetUrl = await generateImage({ prompt: promptDraft })
+  
+        const updatedParty = await solveChallenge({
+          partyId: party.partyId,
+          existingChallengeId: nextChallenge?.id,
+          nextChallenge: {
+            fromPlayer: player.id,
+            assetUrl: newAssetUrl,
+            prompt: promptDraft,
+          }
+        })
+        setParty(updatedParty)
+        // then we wait to receive a new challenge before unlocking
+
         // setPanel("results")
       } catch (err) {
-
+        console.error(err)
       } finally {
-        setLocked(false)
+        // setLocked(false)
       }
     })
   }
 
-  const mainLoop = () => {
-    const state = useStore.getState()
-    if (state.panel !== "play") { return }
-    // console.log(`current panel is: ${state.panel}`)
-    // console.log("TODO: call the API for new messages")
-    // interrogate the server to see if we have any new message to solve
+  useEffect(() => {
+    console.log("next challenge for us:", nextChallenge)
+    setPromptDraft("")
+    setLocked(false)
+  }, [nextChallenge?.assetUrl])
 
+  useEffect(() => {
+    if (party.status === "ended") {
+      clearInterval(intervalRef.current)
+      setPanel("results")
+    }
+  }, [party.status])
+
+  const mainLoop = () => {
     startTransition(async () => {
-      // console.log("interface/play -> start transition: partyId: "+partyRef.current.partyId)
-      const updatedParty = await getParty(partyRef.current.partyId)
-      // console.log("interface/play -> start transition: updated:", updatedParty)
-      setParty(updatedParty)
+      const state = useStore.getState()
+      setParty(await getParty(state.party.partyId))
     })
   }
   
@@ -133,20 +153,20 @@ export function Play() {
           `px-3 py-6 md:px-6 md:py-12 xl:px-8 xl:py-16`
         )}>
 
-            <div
+            {nextChallenge?.assetUrl ? <div
               className={cn(
                 `flex flex-col`,
                 `space-y-3 md:space-y-6`,
                 `items-center`,
               )}>
-                {imageUrl ? <img
-                  src={imageUrl}
+                <img
+                  src={nextChallenge.assetUrl}
                   className={cn(
                     `w-[512px] object-cover`,
                     `rounded-2xl`
                     )}
-                /> : null}
-            </div>
+                />
+            </div> : null}
 
             <div className={cn(
               `flex flex-col md:flex-row`,
@@ -159,7 +179,7 @@ export function Play() {
               )}>
                 <input
                   type="text"
-                  placeholder="Imagine a funny scene"
+                  placeholder={nextChallenge?.assetUrl ? `What do you see?` : `Imagine a funny scene`}
                   className={cn(
                     headingFont.className,
                     `w-full`,

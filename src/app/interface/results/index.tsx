@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Teams } from "@/app/interface/teams"
-import { ChatMessage } from "@/app/interface/chat-message"
+import { ChallengeChatItem } from "@/app/interface/challenge-chat-item"
 
 import { useStore } from "@/app/store"
 
@@ -8,7 +8,7 @@ export function Results() {
   const panel = useStore(state => state.panel)
   const status = useStore(state => state.party.status)
   const players = useStore(state => state.party.players)
-  const messages = useStore(state => state.party.messages)
+  const challenges = useStore(state => state.party.challenges)
 
   return (
     <div className={cn(
@@ -32,10 +32,10 @@ export function Results() {
           `p-3 md:p-6 xl:p-8`
         )}>
           <div>
-            {messages.map((message, i) => (
-              <ChatMessage
-                key={`${message.id}`}
-                message={message}
+            {challenges.map((challenge, i) => (
+              <ChallengeChatItem
+                key={`${challenge.id}`}
+                challenge={challenge}
                 side={i % 2 ? "left" : "right"}
               />
             ))}

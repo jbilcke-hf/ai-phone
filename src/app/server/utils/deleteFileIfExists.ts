@@ -1,5 +1,4 @@
 import { existsSync, promises as fs } from "node:fs"
-import { lock } from "lockfile-light"
 
 export const deleteFileIfExists = async (filePath: string) => {
 

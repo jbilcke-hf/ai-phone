@@ -6,6 +6,6 @@ const nanoid = customAlphabet([
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 ].join(''), 16)
 
-export function getRandomMessageId() {
+export function getRandomChallengeId() {
   return nanoid()
 }

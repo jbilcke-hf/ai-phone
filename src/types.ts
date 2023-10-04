@@ -232,13 +232,14 @@ export type Team = {
   players: string[]
 }
 
-// a "message" is what is passed from one person to another
-export type Message = {
+// a "challenge" is what is passed from one person to another
+export type Challenge = {
   id: string
-  playerId: string
-  type: "invented" | "guessed"
-  input: string // invented -> image, guessed: -> prompt
-  output: string // invented -> prompt, guessed: -> image
+  fromPlayer: string
+  toPlayer: string
+  assetUrl: string
+  prompt: string
+  solved: boolean
 }
 
 export type PartyStatus =
@@ -256,7 +257,7 @@ export type Party = {
   // but for now let's keep it simple and skip it
   // teams: Team[]
 
-  messages: Message[]
+  challenges: Challenge[]
 }
 
 export type CurrentPanel =

@@ -1,12 +1,13 @@
 "use server"
-import { v4 as uuidv4 } from "uuid"
 
-import { Party, Player } from "@/types"
+import { Challenge, Party, Player } from "@/types"
 
 import { readParty } from "@/app/server/party/readParty"
 import { writeParty } from "@/app/server/party/writeParty"
 import { deleteParty } from "@/app/server/party/deleteParty"
 import { newPlayer } from "@/app/store/newPlayer"
+import { newChallenge } from "@/app/store/newChallenge"
+import { pick } from "@/lib/pick"
 
 // 
 export async function joinParty(partyId: string, partialPlayer: Partial<Player>): Promise<{ party: Party, player: Player }> {
@@ -16,7 +17,7 @@ export async function joinParty(partyId: string, partialPlayer: Partial<Player>)
     startedAt: "", // not started yet
     players: [],
     status: "waiting",
-    messages: []
+    challenges: []
   }
   try {
     party = await getParty(partyId)
@@ -103,7 +104,53 @@ export async function getParty(partyId: string) {
   try {
     party = await readParty(partyId)
 
+    // make sure we don't reveal the prompts until the very end
+    const isEnded = party.status === "ended"
+    if (!isEnded) {
+      party.challenges = party.challenges.map(c => ({ ...c, prompt: "" }))
+    }
+
     return party
+  } catch (err) {
+    console.error(`couldn't get party ${partyId} (not found)`)
+    throw new Error(`couldn't get party ${partyId} (not found)`)
+  }
+
+}
+
+export async function solveChallenge({
+  partyId,
+  existingChallengeId,
+  nextChallenge
+}: {
+  partyId: string
+  existingChallengeId?: string
+   nextChallenge: Partial<Challenge>
+}): Promise<Party> {
+  let party: Party
+  try {
+    party = await readParty(partyId)
+
+    // mark the challenge as done
+    party.challenges = party.challenges.map(c => ({
+      ...c,
+      solved: c.id === existingChallengeId ? true : c.solved,
+    }))
+
+    const tmpChallenge = newChallenge(nextChallenge)
+
+    const otherPlayers = party.players.filter(p => p.id !== nextChallenge.fromPlayer).map(p => p.id)
+
+    // TODO: pick someone who isn't already busy with messages
+    const otherPlayer = pick(otherPlayers) || ""
+
+    tmpChallenge.toPlayer = otherPlayer
+
+    party.challenges.push(tmpChallenge)
+
+    const newParty = await writeParty(party)
+
+    return newParty
   } catch (err) {
     console.error(`couldn't get party ${partyId} (not found)`)
     throw new Error(`couldn't get party ${partyId} (not found)`)
